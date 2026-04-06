@@ -1,0 +1,4 @@
+scan:
+  bazel: true
+  bazel-targets: //projects/...
+  use-bazel-aspects: true

@@ -1,0 +1,33 @@
+  name: Endor Labs Scan
+  on:
+    push:
+      branches: [ main ]
+    pull_request:
+      branches: [ main ]
+  jobs:
+    scan:
+      runs-on: ubuntu-latest
+      permissions:
+        security-events: write
+        contents: read
+        id-token: write
+        pull-requests: write
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Endor Labs Scan
+        uses: endorlabs/github-action@v1
+        with:
+          namespace: "endor-solutions-ypulse.github-ci"
+          scan_dependencies: true
+          scan_secrets: false
+          enable_pr_comments: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          additional_args: "--scan-profile=scanprofile.yaml"
+          sarif_file: findings.sarif
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        continue-on-error: true
+        with:
+          sarif_file: findings.sarif

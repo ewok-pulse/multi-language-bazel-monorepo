@@ -1,4 +1,4 @@
-  name: Endor Labs Scan
+name: Endor Labs Scan
   on:
     push:
       branches: [ main ]
@@ -23,7 +23,7 @@
           scan_secrets: false
           enable_pr_comments: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          additional_args: "--scan-profile=scanprofile.yaml"
+          additional_args: "--use-bazel --use-bazel-aspects --bazel-include-targets=//projects/..."
           sarif_file: findings.sarif
       - name: Upload SARIF
         if: always()

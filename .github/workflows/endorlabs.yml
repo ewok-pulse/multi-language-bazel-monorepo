@@ -27,7 +27,7 @@ jobs:
         scan_secrets: false
         enable_pr_comments: true
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        additional_args: "--use-bazel --use-bazel-aspects --bazel-include-targets=//projects/go_hello_world/..., //projects/go_web/..., //projects/java_greeter/..., //projects/node_calculator/..., //projects/node_web/..., //projects/python_calculator/..., //projects/python_web/..., //projects/ts_app/..."
+        additional_args: "--use-bazel --use-bazel-aspects --bazel-include-targets=//projects/go_hello_world/...,//projects/go_web/...,//projects/java_greeter/...,//projects/node_calculator/...,//projects/node_web/...,//projects/python_calculator/...,//projects/python_web/...,//projects/ts_app/..."
         sarif_file: findings.sarif
     - name: Upload SARIF
       if: always()

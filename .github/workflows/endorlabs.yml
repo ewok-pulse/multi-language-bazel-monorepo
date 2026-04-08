@@ -20,7 +20,7 @@ jobs:
       with:
         python-version: '3.11'
     - name: Endor Labs Scan
-      uses: endorlabs/github-action@v1
+      uses: endorlabs/github-action@b8992820cc4d9c9e7ded5022adf6cabe2dc11946
       with:
         namespace: "endor-solutions-ypulse.github-ci"
         scan_dependencies: true

@@ -27,7 +27,9 @@ jobs:
         scan_secrets: false
         enable_pr_comments: true
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        additional_args: "--use-bazel --use-bazel-aspects --bazel-targets-query='kind(go_binary, //projects/...) + kind(go_library, //projects/...) + kind(go_test, //projects/...) + kind(java_binary, //projects/...) + kind(java_library, //projects/...) + kind(js_binary, //projects/...) + kind(js_library, //projects/...) + kind(py_binary, //projects/...) + kind(py_library, //projects/...) + kind(py_test, //projects/...) + kind(ts_project, //projects/...)'"
+        use_bazel: true
+        bazel_targets_query: "kind(go_binary, //projects/...) + kind(go_library, //projects/...) + kind(go_test, //projects/...) + kind(java_binary, //projects/...) + kind(java_library, //projects/...) + kind(js_binary, //projects/...) + kind(js_library, //projects/...) + kind(py_binary, //projects/...) + kind(py_library, //projects/...) + kind(py_test, //projects/...) + kind(ts_project, //projects/...)"
+        additional_args: "--use-bazel-aspects"
         sarif_file: findings.sarif
     - name: Upload SARIF
       if: always()

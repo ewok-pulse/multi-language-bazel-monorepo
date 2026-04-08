@@ -15,10 +15,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
     - name: Endor Labs Scan
       uses: endorlabs/github-action@b8992820cc4d9c9e7ded5022adf6cabe2dc11946
       with:
@@ -28,8 +24,8 @@ jobs:
         enable_pr_comments: true
         github_token: ${{ secrets.GITHUB_TOKEN }}
         use_bazel: true
-        bazel_targets_query: "kind(go_binary, //projects/...) + kind(go_library, //projects/...) + kind(go_test, //projects/...) + kind(java_binary, //projects/...) + kind(java_library, //projects/...) + kind(js_binary, //projects/...) + kind(js_library, //projects/...) + kind(py_binary, //projects/...) + kind(py_library, //projects/...) + kind(py_test, //projects/...) + kind(ts_project, //projects/...)"
-        additional_args: "--use-bazel-aspects"
+        bazel_targets_query: "kind(go_binary, //projects/...) + kind(go_library, //projects/...) + kind(java_binary, //projects/...) + kind(java_library, //projects/...) + kind(js_binary, //projects/...) + kind(js_library, //projects/...) + kind(py_binary, //projects/...) + kind(py_library, //projects/...)"
+        additional_args: "--use-bazel-aspects --install-build-tools"
         sarif_file: findings.sarif
     - name: Upload SARIF
       if: always()

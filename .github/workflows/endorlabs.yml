@@ -8,6 +8,7 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     permissions:
+      actions: read
       security-events: write
       contents: read
       id-token: write
@@ -15,17 +16,43 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Endor Labs Scan
+    - name: Set up Bazelisk
+      uses: bazelbuild/setup-bazelisk@v3
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+    - name: Endor Labs PR Scan
+      if: github.event_name == 'pull_request'
+      uses: endorlabs/github-action@b8992820cc4d9c9e7ded5022adf6cabe2dc11946
+      env:
+        ENDOR_SCAN_ENABLE_PRECOMPUTED_CALLGRAPHS: "true"
+      with:
+        namespace: "endor-solutions-ypulse.github-ci"
+        scan_dependencies: true
+        scan_secrets: false
+        pr: true
+        pr_incremental: true
+        enable_pr_comments: true
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        enable_github_action_token: true
+        use-bazel: true
+        bazel_targets_query: 'kind("go_binary", //projects/...) + kind("go_library", //projects/...) + kind("java_binary", //projects/...) + kind("java_library", //projects/...) + kind("js_binary", //projects/...) + kind("js_library", //projects/...) + kind("py_binary", //projects/...) + kind("py_library", //projects/...)'
+        additional_args: "--quick-scan --install-build-tools --bazel-flags=--spawn_strategy=sandboxed"
+        scan_summary_output_type: "table"
+        sarif_file: findings.sarif
+    - name: Endor Labs Monitor Scan
+      if: github.event_name == 'push'
       uses: endorlabs/github-action@b8992820cc4d9c9e7ded5022adf6cabe2dc11946
       with:
         namespace: "endor-solutions-ypulse.github-ci"
         scan_dependencies: true
         scan_secrets: false
-        enable_pr_comments: true
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        use_bazel: true
-        bazel_targets_query: "kind(go_binary, //projects/...) + kind(go_library, //projects/...) + kind(java_binary, //projects/...) + kind(java_library, //projects/...) + kind(js_binary, //projects/...) + kind(js_library, //projects/...) + kind(py_binary, //projects/...) + kind(py_library, //projects/...)"
-        additional_args: "--use-bazel-aspects --install-build-tools"
+        pr: false
+        enable_github_action_token: true
+        use-bazel: true
+        bazel_targets_query: 'kind("go_binary", //projects/...) + kind("go_library", //projects/...) + kind("java_binary", //projects/...) + kind("java_library", //projects/...) + kind("js_binary", //projects/...) + kind("js_library", //projects/...) + kind("py_binary", //projects/...) + kind("py_library", //projects/...)'
+        additional_args: "--use-bazel-aspects --install-build-tools --bazel-flags=--spawn_strategy=sandboxed"
         sarif_file: findings.sarif
     - name: Upload SARIF
       if: always()

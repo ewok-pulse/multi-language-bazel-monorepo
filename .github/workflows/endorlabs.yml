@@ -36,7 +36,7 @@ jobs:
         enable_pr_comments: true
         github_token: ${{ secrets.GITHUB_TOKEN }}
         enable_github_action_token: true
-        use-bazel: true
+        use_bazel: true
         bazel_targets_query: 'kind("go_binary", //projects/...) + kind("go_library", //projects/...) + kind("java_binary", //projects/...) + kind("java_library", //projects/...) + kind("js_binary", //projects/...) + kind("js_library", //projects/...) + kind("py_binary", //projects/...) + kind("py_library", //projects/...)'
         additional_args: "--quick-scan --install-build-tools --bazel-flags=--spawn_strategy=sandboxed"
         scan_summary_output_type: "table"
@@ -50,7 +50,7 @@ jobs:
         scan_secrets: false
         pr: false
         enable_github_action_token: true
-        use-bazel: true
+        use_bazel: true
         bazel_targets_query: 'kind("go_binary", //projects/...) + kind("go_library", //projects/...) + kind("java_binary", //projects/...) + kind("java_library", //projects/...) + kind("js_binary", //projects/...) + kind("js_library", //projects/...) + kind("py_binary", //projects/...) + kind("py_library", //projects/...)'
         additional_args: "--use-bazel-aspects --install-build-tools --bazel-flags=--spawn_strategy=sandboxed"
         sarif_file: findings.sarif

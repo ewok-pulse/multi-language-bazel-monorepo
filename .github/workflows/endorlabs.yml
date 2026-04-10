@@ -18,18 +18,18 @@ jobs:
       uses: actions/checkout@v4
     - name: Set up Bazelisk
       uses: bazelbuild/setup-bazelisk@v3
-    - name: Write Endor Labs Bazel CI config
-      run: |
-        cat > .endorlabs.ci.bazelrc <<'EOF'
-        build --spawn_strategy=local
-        build --strategy=Genrule=local
-        query --spawn_strategy=local
-        query --strategy=Genrule=local
-        EOF
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
         python-version: "3.11"
+    - name: Pre-build Bazel scan targets
+      run: |
+        bazel query 'kind("go_binary", //projects/...) + kind("go_library", //projects/...) + kind("java_binary", //projects/...) + kind("java_library", //projects/...) + kind("js_binary", //projects/...) + kind("js_library", //projects/...) + kind("py_binary", //projects/...) + kind("py_library", //projects/...)' > .endorlabs.bazel.targets
+        if [ ! -s .endorlabs.bazel.targets ]; then
+          echo "No Bazel targets resolved for the Endor Labs scan" >&2
+          exit 1
+        fi
+        xargs bazel build < .endorlabs.bazel.targets
     - name: Endor Labs PR Scan
       if: github.event_name == 'pull_request'
       uses: endorlabs/github-action@b8992820cc4d9c9e7ded5022adf6cabe2dc11946
@@ -46,7 +46,7 @@ jobs:
         enable_github_action_token: true
         use_bazel: true
         bazel_targets_query: 'kind("go_binary", //projects/...) + kind("go_library", //projects/...) + kind("java_binary", //projects/...) + kind("java_library", //projects/...) + kind("js_binary", //projects/...) + kind("js_library", //projects/...) + kind("py_binary", //projects/...) + kind("py_library", //projects/...)'
-        additional_args: "--quick-scan --install-build-tools --bazel-rc-path=.endorlabs.ci.bazelrc"
+        additional_args: "--quick-scan"
         scan_summary_output_type: "table"
         sarif_file: findings.sarif
     - name: Endor Labs Monitor Scan
@@ -60,7 +60,7 @@ jobs:
         enable_github_action_token: true
         use_bazel: true
         bazel_targets_query: 'kind("go_binary", //projects/...) + kind("go_library", //projects/...) + kind("java_binary", //projects/...) + kind("java_library", //projects/...) + kind("js_binary", //projects/...) + kind("js_library", //projects/...) + kind("py_binary", //projects/...) + kind("py_library", //projects/...)'
-        additional_args: "--use-bazel-aspects --install-build-tools --bazel-rc-path=.endorlabs.ci.bazelrc"
+        additional_args: "--use-bazel-aspects"
         sarif_file: findings.sarif
     - name: Upload SARIF
       if: always()

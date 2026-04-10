@@ -34,6 +34,11 @@ jobs:
           exit 1
         fi
         xargs bazel build < .endorlabs.bazel.targets
+    - name: Debug Go toolchain visibility
+      run: |
+        which go || true
+        go version || true
+        env | grep -E '^(GOROOT|GOPATH)=' || true
     - name: Endor Labs PR Scan
       if: github.event_name == 'pull_request'
       uses: endorlabs/github-action@b8992820cc4d9c9e7ded5022adf6cabe2dc11946

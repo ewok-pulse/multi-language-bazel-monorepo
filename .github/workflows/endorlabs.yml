@@ -39,11 +39,11 @@ jobs:
         which go || true
         go version || true
         env | grep -E '^(GOROOT|GOPATH)=' || true
-    - name: Set up Endor Labs CLI
-      uses: endorlabs/github-action/setup@1.1.4
-      with:
-        namespace: "endor-solutions-ypulse.github-ci"
-        enable_github_action_token: true
+    - name: Install endorctl
+      run: |
+        curl -fsSL https://api.endorlabs.com/download/latest/endorctl_linux_amd64 -o endorctl
+        chmod +x endorctl
+        sudo mv endorctl /usr/local/bin/endorctl
     - name: Endorctl Direct PR Scan
       if: github.event_name == 'pull_request'
       env:

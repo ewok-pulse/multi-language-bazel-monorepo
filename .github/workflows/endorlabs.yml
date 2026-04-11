@@ -49,6 +49,14 @@ jobs:
       env:
         ENDOR_SCAN_ENABLE_PRECOMPUTED_CALLGRAPHS: "true"
       run: |
+        echo "PATH=$PATH"
+        which go || true
+        go version || true
+        go env || true
+        export GOROOT="$(go env GOROOT)"
+        export GOPATH="$(go env GOPATH)"
+        echo "GOROOT=$GOROOT"
+        echo "GOPATH=$GOPATH"
         endorctl scan \
           --namespace="endor-solutions-ypulse.github-ci" \
           --enable-github-action-token=true \
@@ -59,6 +67,14 @@ jobs:
     - name: Endorctl Direct Monitor Scan
       if: github.event_name == 'push'
       run: |
+        echo "PATH=$PATH"
+        which go || true
+        go version || true
+        go env || true
+        export GOROOT="$(go env GOROOT)"
+        export GOPATH="$(go env GOPATH)"
+        echo "GOROOT=$GOROOT"
+        echo "GOPATH=$GOPATH"
         endorctl scan \
           --namespace="endor-solutions-ypulse.github-ci" \
           --enable-github-action-token=true \

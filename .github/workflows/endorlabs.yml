@@ -25,7 +25,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: "1.22"
+        go-version: "1.18"
     - name: Pre-build Bazel scan targets
       run: |
         bazel query 'kind("go_binary", //projects/...) + kind("go_library", //projects/...) + kind("java_binary", //projects/...) + kind("java_library", //projects/...) + kind("js_binary", //projects/...) + kind("js_library", //projects/...) + kind("py_binary", //projects/...) + kind("py_library", //projects/...)' > .endorlabs.bazel.targets
@@ -34,60 +34,38 @@ jobs:
           exit 1
         fi
         xargs bazel build < .endorlabs.bazel.targets
-    - name: Debug Go toolchain visibility
-      run: |
-        which go || true
-        go version || true
-        env | grep -E '^(GOROOT|GOPATH)=' || true
-    - name: Install endorctl
-      run: |
-        curl -fsSL https://api.endorlabs.com/download/latest/endorctl_linux_amd64 -o endorctl
-        chmod +x endorctl
-        sudo mv endorctl /usr/local/bin/endorctl
-    - name: Endorctl Direct PR Scan
+    - name: Endor Labs PR Scan
       if: github.event_name == 'pull_request'
+      uses: endorlabs/github-action@b8992820cc4d9c9e7ded5022adf6cabe2dc11946
       env:
         ENDOR_SCAN_ENABLE_PRECOMPUTED_CALLGRAPHS: "true"
-      run: |
-        echo "PATH=$PATH"
-        which go || true
-        go version || true
-        go env || true
-        go env GOVERSION GOROOT GOPATH GOOS GOARCH || true
-        endorctl version || true
-        export GOTOOLCHAIN=local
-        export GOROOT="$(go env GOROOT)"
-        export GOPATH="$(go env GOPATH)"
-        echo "GOROOT=$GOROOT"
-        echo "GOPATH=$GOPATH"
-        endorctl scan \
-          --namespace="endor-solutions-ypulse.github-ci" \
-          --enable-github-action-token=true \
-          --use-bazel \
-          --bazel-targets-query='kind("go_binary", //projects/...) + kind("go_library", //projects/...) + kind("java_binary", //projects/...) + kind("java_library", //projects/...) + kind("js_binary", //projects/...) + kind("js_library", //projects/...) + kind("py_binary", //projects/...) + kind("py_library", //projects/...)' \
-          --quick-scan \
-          --sarif-file=findings.sarif
-    - name: Endorctl Direct Monitor Scan
+      with:
+        namespace: "endor-solutions-ypulse.github-ci"
+        scan_dependencies: true
+        scan_secrets: false
+        pr: true
+        pr_incremental: true
+        enable_pr_comments: true
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        enable_github_action_token: true
+        use_bazel: true
+        bazel_targets_query: 'kind("go_binary", //projects/...) + kind("go_library", //projects/...) + kind("java_binary", //projects/...) + kind("java_library", //projects/...) + kind("js_binary", //projects/...) + kind("js_library", //projects/...) + kind("py_binary", //projects/...) + kind("py_library", //projects/...)'
+        additional_args: "--quick-scan"
+        scan_summary_output_type: "table"
+        sarif_file: findings.sarif
+    - name: Endor Labs Monitor Scan
       if: github.event_name == 'push'
-      run: |
-        echo "PATH=$PATH"
-        which go || true
-        go version || true
-        go env || true
-        go env GOVERSION GOROOT GOPATH GOOS GOARCH || true
-        endorctl version || true
-        export GOTOOLCHAIN=local
-        export GOROOT="$(go env GOROOT)"
-        export GOPATH="$(go env GOPATH)"
-        echo "GOROOT=$GOROOT"
-        echo "GOPATH=$GOPATH"
-        endorctl scan \
-          --namespace="endor-solutions-ypulse.github-ci" \
-          --enable-github-action-token=true \
-          --use-bazel \
-          --bazel-targets-query='kind("go_binary", //projects/...) + kind("go_library", //projects/...) + kind("java_binary", //projects/...) + kind("java_library", //projects/...) + kind("js_binary", //projects/...) + kind("js_library", //projects/...) + kind("py_binary", //projects/...) + kind("py_library", //projects/...)' \
-          --use-bazel-aspects \
-          --sarif-file=findings.sarif
+      uses: endorlabs/github-action@b8992820cc4d9c9e7ded5022adf6cabe2dc11946
+      with:
+        namespace: "endor-solutions-ypulse.github-ci"
+        scan_dependencies: true
+        scan_secrets: false
+        pr: false
+        enable_github_action_token: true
+        use_bazel: true
+        bazel_targets_query: 'kind("go_binary", //projects/...) + kind("go_library", //projects/...) + kind("java_binary", //projects/...) + kind("java_library", //projects/...) + kind("js_binary", //projects/...) + kind("js_library", //projects/...) + kind("py_binary", //projects/...) + kind("py_library", //projects/...)'
+        additional_args: "--use-bazel-aspects"
+        sarif_file: findings.sarif
     - name: Upload SARIF
       if: always()
       uses: github/codeql-action/upload-sarif@v4

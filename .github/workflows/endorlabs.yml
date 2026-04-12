@@ -20,10 +20,11 @@ jobs:
       uses: bazelbuild/setup-bazelisk@v3
     - name: Pre-build Bazel scan targets
       run: |
-        bazel query --keep_going 'kind("js_library", //bazel/... + //buildscripts/... + //evergreen/... + //jstests/... + //modules_poc/... + //src/... + //tools/...) + kind("py_binary", //bazel/... + //buildscripts/... + //evergreen/... + //jstests/... + //modules_poc/... + //src/... + //tools/...) + kind("py_library", //bazel/... + //buildscripts/... + //evergreen/... + //jstests/... + //modules_poc/... + //src/... + //tools/...) + kind("rust_library", //bazel/... + //buildscripts/... + //evergreen/... + //jstests/... + //modules_poc/... + //src/... + //tools/...)' > .endorlabs.bazel.targets 2>.endorlabs.bazel.query.log; query_rc=$?
-        if [ $query_rc -ne 0 ] && [ $query_rc -ne 3 ]; then
+        query_rc=0
+        bazel query --keep_going 'kind("js_library", //bazel/... + //buildscripts/... + //evergreen/... + //jstests/... + //modules_poc/... + //src/... + //tools/...) + kind("py_binary", //bazel/... + //buildscripts/... + //evergreen/... + //jstests/... + //modules_poc/... + //src/... + //tools/...) + kind("py_library", //bazel/... + //buildscripts/... + //evergreen/... + //jstests/... + //modules_poc/... + //src/... + //tools/...) + kind("rust_library", //bazel/... + //buildscripts/... + //evergreen/... + //jstests/... + //modules_poc/... + //src/... + //tools/...)' > .endorlabs.bazel.targets 2>.endorlabs.bazel.query.log || query_rc=$?
+        if [ "$query_rc" -ne 0 ] && [ "$query_rc" -ne 3 ]; then
           cat .endorlabs.bazel.query.log >&2
-          exit $query_rc
+          exit "$query_rc"
         fi
         if [ ! -s .endorlabs.bazel.targets ]; then
           cat .endorlabs.bazel.query.log >&2
